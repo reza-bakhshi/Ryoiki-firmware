@@ -15,8 +15,6 @@
 #define MIN(a, b) ((a > b) ? b : a)
 #endif /* MIN */
 
-#define LED_PIN 25
-
 #define BUFFER_SIZE 2560
 
 #define DEF_BIT_RATE 115200
@@ -196,8 +194,6 @@ void core1_entry(void)
 				usb_cdc_process(itf);
 			}
 		}
-
-		gpio_put(LED_PIN, con);
 	}
 }
 
@@ -262,6 +258,9 @@ void init_uart_data(uint8_t itf)
 	gpio_set_function(ui->tx_pin, GPIO_FUNC_UART);
 	gpio_set_function(ui->rx_pin, GPIO_FUNC_UART);
 
+	gpio_pull_up(ui->rx_pin);
+	gpio_pull_up(ui->tx_pin); 
+
 	/* USB CDC LC */
 	ud->usb_lc.bit_rate = DEF_BIT_RATE;
 	ud->usb_lc.data_bits = DEF_DATA_BITS;
@@ -305,9 +304,6 @@ int main(void)
 
 	for (itf = 0; itf < CFG_TUD_CDC; itf++)
 		init_uart_data(itf);
-
-	gpio_init(LED_PIN);
-	gpio_set_dir(LED_PIN, GPIO_OUT);
 
 	multicore_launch_core1(core1_entry);
 
